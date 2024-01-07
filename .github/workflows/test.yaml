@@ -21,9 +21,7 @@ jobs:
       run: docker run --name mysql -e MYSQL_ROOT_PASSWORD=P@ssw0rd -v $(pwd):/scripts -d mysql:latest
 
     - name: Wait for the database service to start 
-      uses: GuillaumeFalourd/wait-sleep-action@v1
-        with:
-          time: '15' # for 15 seconds
+      run: sleep 15 
 
     - name: Run the task code
       run: docker exec mysql sh -c 'mysql -u root -pP@ssw0rd < /scripts/task.sql'
