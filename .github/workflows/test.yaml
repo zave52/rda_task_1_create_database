@@ -3,7 +3,7 @@ name: Test
 on:
   workflow_dispatch:
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
 
 jobs:
   build:
@@ -16,11 +16,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - run: docker run --name mysql -e MYSQL_ROOT_PASSWORD=P@ssw0rd -v $(pwd):/scripts -d mysql:latest
-    # - run: npm test
-    # - name: Upload HTML report(backstop data)
-    #   if: ${{ always() }}
-    #   uses: actions/upload-artifact@v2
-    #   with:
-    #     name: report
-    #     path: backstop_data
+
+    - name: Spin-up the database for tests
+      run: docker run --name mysql -e MYSQL_ROOT_PASSWORD=P@ssw0rd -v $(pwd):/scripts -d mysql:latest
+    
+    - name: Run the task code
+      run: chmod 755 task.sql && docker exec mysql sh -c 'mysql -u root -pP@ssw0rd < /scripts/task.sql'
+
+    - name: Run the tests
+      run: chmod 755 test.sql && docker exec mysql sh -c 'mysql -u root -pP@ssw0rd < /scripts/test.sql'
